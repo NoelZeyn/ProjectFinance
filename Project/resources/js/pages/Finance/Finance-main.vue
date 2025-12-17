@@ -13,6 +13,10 @@
             <img src="@/assets/search.svg" alt="Search"
               class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
+          <div class="relative flex-1 min-w-[200px]">
+            <input type="date" v-model="searchDate" @input="onInputSearch"
+              class="w-full border border-gray-300 rounded-md py-2 pl-4 pr-4 text-sm text-gray-700" />
+          </div>
         </div>
 
         <div class="bg-white rounded-lg shadow border border-gray-300 mt-8 overflow-hidden">
@@ -116,8 +120,6 @@ import informasiIcon from "@/assets/Informasi.svg";
 import updateIcon from "@/assets/Edit.svg";
 import deleteIcon from "@/assets/Delete.svg";
 import axios from "axios";
-import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
 // This component manages the inventory of tools (ATK) in the application.
 export default {
   name: "TrackingFinance",
@@ -137,6 +139,7 @@ export default {
       informasiIcon,
       updateIcon,
       deleteIcon,
+      searchDate: "", // untuk filter tanggal
       currentPage: 1,
       itemsPerPage: 10,
     };

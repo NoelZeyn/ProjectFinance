@@ -11,7 +11,7 @@ class FinanceController extends Controller
     public function index()
     {
         try {
-            $finance = Finance::with('admin')->get();
+            $finance = Finance::get();
             return response()->json([
                 'status' => 'success',
                 'data' => $finance,
@@ -60,7 +60,7 @@ class FinanceController extends Controller
     public function show(string $id)
     {
         try {
-            $finance = Finance::with('admin')->findOrFail($id);
+            $finance = Finance::findOrFail($id);
             return response()->json([
                 'status' => 'success',
                 'data' => $finance,

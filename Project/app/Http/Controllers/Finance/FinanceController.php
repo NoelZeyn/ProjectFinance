@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\finance;
+namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Finance;
 use Illuminate\Http\Request;
 
-class financeController extends Controller
+class FinanceController extends Controller
 {
     public function index()
     {

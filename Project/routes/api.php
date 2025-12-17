@@ -12,7 +12,7 @@ use App\Http\Controllers\Inventoris\RequestATKBaruController;
 use App\Http\Controllers\Penempatan\BidangController;
 use App\Http\Controllers\Penempatan\PenempatanController;
 use App\Http\Controllers\Authentication\ProfileController;
-use App\Http\Controllers\finance\financeController;
+use App\Http\Controllers\finance\FinanceController;
 use App\Http\Controllers\Pengadaan\HistoryApprovalController;
 use App\Http\Controllers\Pengadaan\KategoriPengadaanController;
 use App\Http\Controllers\Pengadaan\PengajuanIntiController;
@@ -130,9 +130,9 @@ Route::group(['middleware' => 'api'], function () {
 });
 
 Route::group(['middleware' => 'api'], function () {
-    Route::get('finance', [financeController::class, 'index'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
-    Route::post('finance', [financeController::class, 'store'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
-    Route::get('finance-info/{id}', [financeController::class, 'show'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
-    Route::put('finance-edit/{id}', [financeController::class, 'update'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
-    Route::delete('finance-delete/{id}', [financeController::class, 'destroy'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin']);
+    Route::get('finance', [FinanceController::class, 'index'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
+    Route::post('finance', [FinanceController::class, 'store'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
+    Route::get('finance-info/{id}', [FinanceController::class, 'show'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
+    Route::put('finance-edit/{id}', [FinanceController::class, 'update'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
+    Route::delete('finance-delete/{id}', [FinanceController::class, 'destroy'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin']);
 });

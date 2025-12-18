@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BarangSales;
 use App\Models\User;
 use GuzzleHttp\Psr7\Request;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -24,5 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->call(DataDiriSeeder::class);
         $this->call(AlatPenempatanSeeder::class);
         $this->call(FinanceSeeder::class);
+        $this->call(BarangSalesSeeder::class);
+        $this->call(SalesSeeder::class);
     }
 }

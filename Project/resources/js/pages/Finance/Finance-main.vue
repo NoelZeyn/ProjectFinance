@@ -137,8 +137,8 @@
 
 
 <script>
-  import ExcelJS from "exceljs";
-  import { saveAs } from "file-saver";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import Sidebar from "@/components/Sidebar.vue";
 import HeaderBar from "@/components/HeaderBar.vue";
 import ModalConfirm from "@/components/ModalConfirm.vue";
@@ -222,139 +222,58 @@ export default {
         })
         .sort((a, b) => new Date(b.date) - new Date(a.date)); // ⬅ terbaru dulu
     },
-async downloadExcel() {
-  const targetDate = this.searchDate
-    ? new Date(this.searchDate)
-    : new Date();
+    async downloadExcel() {
+      const targetDate = this.searchDate
+        ? new Date(this.searchDate)
+        : new Date();
 
-  const targetMonth = targetDate.getMonth();
-  const targetYear = targetDate.getFullYear();
+      const targetMonth = targetDate.getMonth();
+      const targetYear = targetDate.getFullYear();
 
-  const monthlyData = this.financeList.filter(item => {
-    const d = new Date(item.date);
-    return d.getMonth() === targetMonth && d.getFullYear() === targetYear;
-  });
-
-  if (monthlyData.length === 0) {
-    alert("Tidak ada data pada bulan ini");
-    return;
-  }
-
-  // Group per hari
-  const dailyMap = {};
-  monthlyData.forEach(item => {
-    if (!dailyMap[item.date]) dailyMap[item.date] = [];
-    dailyMap[item.date].push(item);
-  });
-
-  const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Finance System";
-  workbook.created = new Date();
-
-  const ws = workbook.addWorksheet("Finance Bulanan", {
-    views: [{ state: "frozen", ySplit: 1 }]
-  });
-
-  // Kolom
-  ws.columns = [
-    { header: "Tanggal", key: "tanggal", width: 22 },
-    { header: "Item", key: "item", width: 28 },
-    { header: "Kategori", key: "kategori", width: 18 },
-    { header: "Jumlah", key: "jumlah", width: 10 },
-    { header: "Harga", key: "harga", width: 16 },
-    { header: "Total", key: "total", width: 18 }
-  ];
-
-  // Style Header
-  ws.getRow(1).eachCell(cell => {
-    cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
-    cell.alignment = { vertical: "middle", horizontal: "center" };
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "FF374151" } // gray-700
-    };
-    cell.border = {
-      top: { style: "thin" },
-      bottom: { style: "thin" },
-      left: { style: "thin" },
-      right: { style: "thin" }
-    };
-  });
-
-  let grandTotal = 0;
-
-  Object.keys(dailyMap).sort().forEach(date => {
-    let dailyTotal = 0;
-    const startRow = ws.rowCount + 1;
-
-    dailyMap[date].forEach(item => {
-      const total = Number(item.total || 0);
-      dailyTotal += total;
-      grandTotal += total;
-
-      ws.addRow({
-        tanggal: this.formatDate(date),
-        item: item.item,
-        kategori: item.category,
-        jumlah: item.amount,
-        harga: item.price,
-        total
+      const monthlyData = this.financeList.filter(item => {
+        const d = new Date(item.date);
+        return d.getMonth() === targetMonth && d.getFullYear() === targetYear;
       });
-    });
 
-    // Merge tanggal per hari
-    ws.mergeCells(startRow, 1, ws.rowCount, 1);
-    ws.getCell(startRow, 1).alignment = {
-      vertical: "middle",
-      horizontal: "center"
-    };
+      if (monthlyData.length === 0) {
+        alert("Tidak ada data pada bulan ini");
+        return;
+      }
 
-    // Total Harian
-    const totalRow = ws.addRow({
-      item: "TOTAL HARIAN",
-      total: dailyTotal
-    });
+      // Group per hari
+      const dailyMap = {};
+      monthlyData.forEach(item => {
+        if (!dailyMap[item.date]) dailyMap[item.date] = [];
+        dailyMap[item.date].push(item);
+      });
 
-    totalRow.eachCell(cell => {
-      cell.font = { bold: true };
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFE5E7EB" } // gray-200
-      };
-    });
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = "Finance System";
+      workbook.created = new Date();
 
-    ws.addRow({});
-  });
+      const ws = workbook.addWorksheet("Finance Bulanan", {
+        views: [{ state: "frozen", ySplit: 1 }]
+      });
 
-  // TOTAL BULANAN
-  const totalMonthRow = ws.addRow({
-    item: "TOTAL BULANAN",
-    total: grandTotal
-  });
+      // Kolom
+      ws.columns = [
+        { header: "Tanggal", key: "tanggal", width: 22 },
+        { header: "Item", key: "item", width: 28 },
+        { header: "Kategori", key: "kategori", width: 18 },
+        { header: "Jumlah", key: "jumlah", width: 10 },
+        { header: "Harga", key: "harga", width: 16 },
+        { header: "Total", key: "total", width: 18 }
+      ];
 
-  totalMonthRow.eachCell(cell => {
-    cell.font = { bold: true, size: 13 };
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "FFD1FAE5" } // green-100
-    };
-  });
-
-  // Format Rupiah
-  ws.eachRow((row, rowNumber) => {
-    if (rowNumber > 1) {
-      row.getCell(5).numFmt = '"Rp"#,##0';
-      row.getCell(6).numFmt = '"Rp"#,##0';
-    }
-  });
-
-  // Border data
-  ws.eachRow((row, rowNumber) => {
-    if (rowNumber > 1) {
-      row.eachCell(cell => {
+      // Style Header
+      ws.getRow(1).eachCell(cell => {
+        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+        cell.alignment = { vertical: "middle", horizontal: "center" };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF374151" } // gray-700
+        };
         cell.border = {
           top: { style: "thin" },
           bottom: { style: "thin" },
@@ -362,21 +281,102 @@ async downloadExcel() {
           right: { style: "thin" }
         };
       });
-    }
-  });
 
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], {
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  });
+      let grandTotal = 0;
 
-  const monthName = targetDate.toLocaleDateString("id-ID", {
-    month: "long",
-    year: "numeric"
-  });
+      Object.keys(dailyMap).sort().forEach(date => {
+        let dailyTotal = 0;
+        const startRow = ws.rowCount + 1;
 
-  saveAs(blob, `Finance_${monthName}.xlsx`);
-},
+        dailyMap[date].forEach(item => {
+          const total = Number(item.total || 0);
+          dailyTotal += total;
+          grandTotal += total;
+
+          ws.addRow({
+            tanggal: this.formatDate(date),
+            item: item.item,
+            kategori: item.category,
+            jumlah: item.amount,
+            harga: item.price,
+            total
+          });
+        });
+
+        // Merge tanggal per hari
+        ws.mergeCells(startRow, 1, ws.rowCount, 1);
+        ws.getCell(startRow, 1).alignment = {
+          vertical: "middle",
+          horizontal: "center"
+        };
+
+        // Total Harian
+        const totalRow = ws.addRow({
+          item: "TOTAL HARIAN",
+          total: dailyTotal
+        });
+
+        totalRow.eachCell(cell => {
+          cell.font = { bold: true };
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFE5E7EB" } // gray-200
+          };
+        });
+
+        ws.addRow({});
+      });
+
+      // TOTAL BULANAN
+      const totalMonthRow = ws.addRow({
+        item: "TOTAL BULANAN",
+        total: grandTotal
+      });
+
+      totalMonthRow.eachCell(cell => {
+        cell.font = { bold: true, size: 13 };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD1FAE5" } // green-100
+        };
+      });
+
+      // Format Rupiah
+      ws.eachRow((row, rowNumber) => {
+        if (rowNumber > 1) {
+          row.getCell(5).numFmt = '"Rp"#,##0';
+          row.getCell(6).numFmt = '"Rp"#,##0';
+        }
+      });
+
+      // Border data
+      ws.eachRow((row, rowNumber) => {
+        if (rowNumber > 1) {
+          row.eachCell(cell => {
+            cell.border = {
+              top: { style: "thin" },
+              bottom: { style: "thin" },
+              left: { style: "thin" },
+              right: { style: "thin" }
+            };
+          });
+        }
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      });
+
+      const monthName = targetDate.toLocaleDateString("id-ID", {
+        month: "long",
+        year: "numeric"
+      });
+
+      saveAs(blob, `Finance_${monthName}.xlsx`);
+    },
 
     paginatedFinanceList() {
       const start = (this.currentPage - 1) * this.itemsPerPage;

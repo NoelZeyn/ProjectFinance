@@ -123,6 +123,14 @@
                         </li>
                     </router-link>
                 </ul>
+                <ul>
+                    <router-link to="/sales-main" class="block">
+                        <li :class="menuClass('sales-main')">
+                            <img src="@/assets/profil.svg" class="w-5" alt="Sales" />
+                            <span>Sales</span>
+                        </li>
+                    </router-link>
+                </ul>
             </div>
             <div class="flex flex-col gap-2">
                 <p class="text-sm font-semibold text-[#b0b385] mb-1">Admin</p>

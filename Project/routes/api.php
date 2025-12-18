@@ -18,6 +18,7 @@ use App\Http\Controllers\Pengadaan\KategoriPengadaanController;
 use App\Http\Controllers\Pengadaan\PengajuanIntiController;
 use App\Http\Controllers\Pengadaan\PengaturanPengajuanController;
 use App\Http\Controllers\Pengadaan\RequestController;
+use App\Http\Controllers\Sales\SalesController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -135,4 +136,11 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('finance-info/{id}', [FinanceController::class, 'show'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
     Route::put('finance-edit/{id}', [FinanceController::class, 'update'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
     Route::delete('finance-delete/{id}', [FinanceController::class, 'destroy'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin']);
+});
+Route::group(['middleware' => 'api'], function () {
+    Route::get('sales', [SalesController::class, 'index'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin,anggaran,asman,manajer,user_review']);
+    Route::post('sales', [SalesController::class, 'store'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin']);
+    Route::get('sales-info/{id}', [SalesController::class, 'show'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin']);
+    Route::put('sales-edit/{id}', [SalesController::class, 'update'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin']);
+    Route::delete('sales-delete/{id}', [SalesController::class, 'destroy'])->middleware(['api', RoleMiddleware::class . ':superadmin,admin']);
 });

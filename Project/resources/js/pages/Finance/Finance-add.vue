@@ -30,7 +30,7 @@
                   v-if="field.type === 'textarea'"
                   v-model="formData[field.key]"
                   :placeholder="field.placeholder"
-                  class="w-full p-2 border rounded-lg bg-gray-100 text-sm"
+                  class="w-full p-2 border rounded-lg bg-gray-100 text-sm border-gray-300"
                 />
 
                 <!-- INPUT -->

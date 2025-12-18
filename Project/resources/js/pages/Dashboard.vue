@@ -131,7 +131,7 @@ import HeaderBar from "@/components/HeaderBar.vue";
 import iconKalender from "@/assets/kalender.svg";
 import iconLaporan from "@/assets/laporan.svg";
 import iconStetoskop from "@/assets/stetoskop.svg";
-import iconPasien from "@/assets/pasien.svg";
+import iconPerson from "@/assets/person.svg";
 import iconPosyandu from "@/assets/posko.svg";
 
 import Chart from 'chart.js/auto';
@@ -157,7 +157,7 @@ export default {
       quickMenus: [
         { icon: iconPosyandu, title: "Grafik", path: "/grafik" },
         { icon: iconStetoskop, title: "Laporan Pengajuan", path: "/laporan-pengajuan" },
-        { icon: iconPasien, title: "Manage Alat", path: "/manajemen-alat" },
+        { icon: iconPerson, title: "Manage Alat", path: "/manajemen-alat" },
         { icon: iconLaporan, title: "Pengajuan", path: "/pengajuan" },
       ],
 

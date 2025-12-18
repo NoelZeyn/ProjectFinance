@@ -24,6 +24,9 @@
             <h3 class="text-sm font-semibold text-gray-900">Data Finance</h3>
 
             <div class="flex flex-wrap gap-2">
+              <button @click="downloadExcel" class="text-sm font-semibold text-green-700 hover:text-green-900">
+                Download Excel
+              </button>
               <router-link v-if="tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin'" to="/finance-add"
                 class="text-sm font-semibold text-[#074a5d] no-underline hover:text-[#0066cc] hover:no-underline">
                 Tambah Tracking
@@ -47,40 +50,62 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(finance, index) in paginatedFinanceList" :key="finance.id" class="text-[#333436]">
-                  <td class="p-3">{{ formatDate(finance.date) }}</td>
-                  <td class="p-3">{{ finance.item }}</td>
-                  <td class="p-3">{{ finance.category }}</td>
-                  <td class="p-3">{{ finance.amount }}</td>
-                  <td class="p-3">{{ formatRupiah(finance.price) }}</td>
-                  <td class="p-3">{{ formatRupiah(finance.total) }}</td>
+                <template v-for="(items, date) in groupedFinanceByDate" :key="date">
+                  <tr>
+                    <td class="p-3 border" :rowspan="items.length">{{ formatDate(date) }}</td>
+                    <td class="p-3 border">{{ items[0].item }}</td>
+                    <td class="p-3 border">{{ items[0].category }}</td>
+                    <td class="p-3 border">{{ items[0].amount }}</td>
+                    <td class="p-3 border">{{ formatRupiah(items[0].price) }}</td>
+                    <td class="p-3 border">{{ formatRupiah(items[0].total) }}</td>
+                    <td class="p-3 border">
+                      <div class="flex flex-wrap justify-center items-center gap-2 sm:space-x-2">
+                        <button title="Informasi" @click="navigateTo('info', items[0])"
+                          class="cursor-pointer hover:opacity-70">
+                          <img :src="informasiIcon" alt="Informasi" class="w-5 h-5 object-contain" />
+                        </button>
+                        <button title="Edit" v-if="tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin'"
+                          @click="navigateTo('edit', items[0])"
+                          class="cursor-pointer hover:opacity-70 border-l sm:border-l pl-2 sm:pl-2 border-transparent sm:border-gray-300">
+                          <img :src="updateIcon" alt="Update" class="w-5 h-5 object-contain" />
+                        </button>
+                        <button title="Hapus" v-if="tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin'"
+                          @click="confirmDelete(items[0])"
+                          class="cursor-pointer hover:opacity-70 border-l sm:border-l pl-2 sm:pl-2 border-transparent sm:border-gray-300">
+                          <img :src="deleteIcon" alt="Delete" class="w-5 h-5 object-contain" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
 
-                  <td class="p-3">
-                    <div class="flex flex-wrap justify-center items-center gap-2 sm:space-x-2">
-                      <!-- Tombol Informasi -->
-                      <button title="Informasi" @click="navigateTo('info', finance)"
-                        class="cursor-pointer hover:opacity-70">
-                        <img :src="informasiIcon" alt="Informasi" class="w-5 h-5 object-contain" />
-                      </button>
-
-                      <!-- Tombol Edit (Hanya untuk Admin/Superadmin) -->
-                      <button title="Edit" @click="navigateTo('edit', finance)"
-                        v-if="tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin'"
-                        class="cursor-pointer hover:opacity-70 border-l sm:border-l pl-2 sm:pl-2 border-transparent sm:border-gray-300">
-                        <img :src="updateIcon" alt="Update" class="w-5 h-5 object-contain" />
-                      </button>
-
-                      <!-- Tombol Hapus (Hanya untuk Admin/Superadmin) -->
-                      <button title="Hapus" @click="confirmDelete(finance)"
-                        v-if="tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin'"
-                        class="cursor-pointer hover:opacity-70 border-l sm:border-l pl-2 sm:pl-2 border-transparent sm:border-gray-300">
-                        <img :src="deleteIcon" alt="Delete" class="w-5 h-5 object-contain" />
-                      </button>
-                    </div>
-                  </td>
-
-                </tr>
+                  <tr v-for="(item, idx) in items.slice(1)" :key="idx">
+                    <td class="p-3 border">{{ item.item }}</td>
+                    <td class="p-3 border">{{ item.category }}</td>
+                    <td class="p-3 border">{{ item.amount }}</td>
+                    <td class="p-3 border">{{ formatRupiah(item.price) }}</td>
+                    <td class="p-3 border">{{ formatRupiah(item.total) }}</td>
+                    <td class="p-3 border">
+                      <div class="flex flex-wrap justify-center items-center gap-2 sm:space-x-2">
+                        <button title="Informasi" @click="navigateTo('info', item)"
+                          class="cursor-pointer hover:opacity-70">
+                          <img :src="informasiIcon" alt="Informasi" class="w-5 h-5 object-contain" />
+                        </button>
+                        <button title="Edit" v-if="tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin'"
+                          @click="navigateTo('edit', item)"
+                          class="cursor-pointer hover:opacity-70 border-l sm:border-l pl-2 sm:pl-2 border-transparent sm:border-gray-300">
+                          <img :src="updateIcon" alt="Update" class="w-5 h-5 object-contain" />
+                        </button>
+                        <button title="Hapus" v-if="tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin'"
+                          @click="confirmDelete(item)"
+                          class="cursor-pointer hover:opacity-70 border-l sm:border-l pl-2 sm:pl-2 border-transparent sm:border-gray-300">
+                          <img :src="deleteIcon" alt="Delete" class="w-5 h-5 object-contain" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
               </tbody>
+
             </table>
           </div>
 
@@ -112,6 +137,8 @@
 
 
 <script>
+  import ExcelJS from "exceljs";
+  import { saveAs } from "file-saver";
 import Sidebar from "@/components/Sidebar.vue";
 import HeaderBar from "@/components/HeaderBar.vue";
 import ModalConfirm from "@/components/ModalConfirm.vue";
@@ -120,6 +147,8 @@ import informasiIcon from "@/assets/Informasi.svg";
 import updateIcon from "@/assets/Edit.svg";
 import deleteIcon from "@/assets/Delete.svg";
 import axios from "axios";
+const wb = new ExcelJS.Workbook();
+const ws = wb.addWorksheet("Finance");
 // This component manages the inventory of tools (ATK) in the application.
 export default {
   name: "TrackingFinance",
@@ -158,7 +187,28 @@ export default {
         })
         .sort((a, b) => new Date(b.date) - new Date(a.date)); // ⬅ terbaru dulu
     },
+    groupedFinanceByDate() {
+      const filtered = this.financeList.filter(a => {
+        const searchMatch =
+          !this.searchQuery ||
+          a.item.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+          (a.keterangan && a.keterangan.toLowerCase().includes(this.searchQuery.toLowerCase()));
 
+        const dateMatch = !this.searchDate || a.date === this.searchDate;
+
+        return searchMatch && dateMatch;
+      });
+
+      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const grouped = {};
+      filtered.forEach(item => {
+        if (!grouped[item.date]) grouped[item.date] = [];
+        grouped[item.date].push(item);
+      });
+
+      return grouped;
+    },
 
     filteredUserFinanceList() {
       return this.userFinanceList
@@ -172,7 +222,161 @@ export default {
         })
         .sort((a, b) => new Date(b.date) - new Date(a.date)); // ⬅ terbaru dulu
     },
+async downloadExcel() {
+  const targetDate = this.searchDate
+    ? new Date(this.searchDate)
+    : new Date();
 
+  const targetMonth = targetDate.getMonth();
+  const targetYear = targetDate.getFullYear();
+
+  const monthlyData = this.financeList.filter(item => {
+    const d = new Date(item.date);
+    return d.getMonth() === targetMonth && d.getFullYear() === targetYear;
+  });
+
+  if (monthlyData.length === 0) {
+    alert("Tidak ada data pada bulan ini");
+    return;
+  }
+
+  // Group per hari
+  const dailyMap = {};
+  monthlyData.forEach(item => {
+    if (!dailyMap[item.date]) dailyMap[item.date] = [];
+    dailyMap[item.date].push(item);
+  });
+
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Finance System";
+  workbook.created = new Date();
+
+  const ws = workbook.addWorksheet("Finance Bulanan", {
+    views: [{ state: "frozen", ySplit: 1 }]
+  });
+
+  // Kolom
+  ws.columns = [
+    { header: "Tanggal", key: "tanggal", width: 22 },
+    { header: "Item", key: "item", width: 28 },
+    { header: "Kategori", key: "kategori", width: 18 },
+    { header: "Jumlah", key: "jumlah", width: 10 },
+    { header: "Harga", key: "harga", width: 16 },
+    { header: "Total", key: "total", width: 18 }
+  ];
+
+  // Style Header
+  ws.getRow(1).eachCell(cell => {
+    cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    cell.alignment = { vertical: "middle", horizontal: "center" };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF374151" } // gray-700
+    };
+    cell.border = {
+      top: { style: "thin" },
+      bottom: { style: "thin" },
+      left: { style: "thin" },
+      right: { style: "thin" }
+    };
+  });
+
+  let grandTotal = 0;
+
+  Object.keys(dailyMap).sort().forEach(date => {
+    let dailyTotal = 0;
+    const startRow = ws.rowCount + 1;
+
+    dailyMap[date].forEach(item => {
+      const total = Number(item.total || 0);
+      dailyTotal += total;
+      grandTotal += total;
+
+      ws.addRow({
+        tanggal: this.formatDate(date),
+        item: item.item,
+        kategori: item.category,
+        jumlah: item.amount,
+        harga: item.price,
+        total
+      });
+    });
+
+    // Merge tanggal per hari
+    ws.mergeCells(startRow, 1, ws.rowCount, 1);
+    ws.getCell(startRow, 1).alignment = {
+      vertical: "middle",
+      horizontal: "center"
+    };
+
+    // Total Harian
+    const totalRow = ws.addRow({
+      item: "TOTAL HARIAN",
+      total: dailyTotal
+    });
+
+    totalRow.eachCell(cell => {
+      cell.font = { bold: true };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFE5E7EB" } // gray-200
+      };
+    });
+
+    ws.addRow({});
+  });
+
+  // TOTAL BULANAN
+  const totalMonthRow = ws.addRow({
+    item: "TOTAL BULANAN",
+    total: grandTotal
+  });
+
+  totalMonthRow.eachCell(cell => {
+    cell.font = { bold: true, size: 13 };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFD1FAE5" } // green-100
+    };
+  });
+
+  // Format Rupiah
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber > 1) {
+      row.getCell(5).numFmt = '"Rp"#,##0';
+      row.getCell(6).numFmt = '"Rp"#,##0';
+    }
+  });
+
+  // Border data
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber > 1) {
+      row.eachCell(cell => {
+        cell.border = {
+          top: { style: "thin" },
+          bottom: { style: "thin" },
+          left: { style: "thin" },
+          right: { style: "thin" }
+        };
+      });
+    }
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  });
+
+  const monthName = targetDate.toLocaleDateString("id-ID", {
+    month: "long",
+    year: "numeric"
+  });
+
+  saveAs(blob, `Finance_${monthName}.xlsx`);
+},
 
     paginatedFinanceList() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
@@ -183,7 +387,6 @@ export default {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       return this.filteredUserFinanceList.slice(start, start + this.itemsPerPage);
     },
-
 
     totalPages() {
       return Math.ceil(this.filteredFinanceList.length / this.itemsPerPage);

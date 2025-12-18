@@ -36,6 +36,7 @@ import TambahAkun from "./pages/superadmin/TambahAkun.vue";
 import FinanceMain from "./pages/Finance/Finance-main.vue";
 import FinanceAdd from "./pages/Finance/Finance-add.vue";
 import FinanceEdit from "./pages/Finance/Finance-edit.vue";
+import FinanceInfo from "./pages/Finance/Finance-info.vue";
 
 
 // Fungsi validasi token
@@ -109,6 +110,7 @@ const routes = [
     { path: "/finance-main", component: FinanceMain, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
     { path: "/finance-add", component: FinanceAdd, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
     { path: "/finance-edit/:id", component: FinanceEdit, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
+    { path: "/finance-info/:id", component: FinanceInfo, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
 ];
 
 // Membuat router

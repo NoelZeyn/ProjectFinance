@@ -65,7 +65,7 @@
                 <ul>
                     <router-link to="/surat-ba" class="block">
                         <li :class="menuClass('suratBeritaAcara')" @click="setActive('suratBeritaAcara')">
-                            <img src="@/assets/pasien.svg" class="w-5" alt="suratBeritaAcara" />
+                            <img src="@/assets/person.svg" class="w-5" alt="suratBeritaAcara" />
                             <span>Surat Berita Acara</span>
                         </li>
                     </router-link>
@@ -77,37 +77,37 @@
                 <ul>
                     <router-link to="/grafik" class="block">
                         <li :class="menuClass('grafik')" @click="setActive('grafik')">
-                            <img src="@/assets/pasien.svg" class="w-5" alt="grafik" />
+                            <img src="@/assets/person.svg" class="w-5" alt="grafik" />
                             <span>Grafik ATK</span>
                         </li>
                     </router-link>
                     <router-link to="/laporan-ATK" class="block">
                         <li :class="menuClass('laporanATK')" @click="setActive('laporanATK')">
-                            <img src="@/assets/pasien.svg" class="w-5" alt="laporanATK" />
+                            <img src="@/assets/person.svg" class="w-5" alt="laporanATK" />
                             <span>Data ATK</span>
                         </li>
                     </router-link>
                     <router-link v-if="role !== 'user'" to="/laporan-history-atk" class="block">
                         <li :class="menuClass('laporanHistoryATK')" @click="setActive('laporanHistoryATK')">
-                            <img src="@/assets/pasien.svg" class="w-5" alt="laporanHistoryATK" />
+                            <img src="@/assets/person.svg" class="w-5" alt="laporanHistoryATK" />
                             <span>Riwayat Manajemen ATK</span>
                         </li>
                     </router-link>
                     <router-link v-if="role !== 'user'" to="/laporan-pemakaian" class="block">
                         <li :class="menuClass('laporanPemakaian')" @click="setActive('laporanPemakaian')">
-                            <img src="@/assets/pasien.svg" class="w-5" alt="laporanPemakaian" />
+                            <img src="@/assets/person.svg" class="w-5" alt="laporanPemakaian" />
                             <span>Riwayat Pemakaian ATK</span>
                         </li>
                     </router-link>
                     <router-link v-if="role !== 'user'" to="/laporan-approval" class="block">
                         <li :class="menuClass('laporanApproval')" @click="setActive('laporanApproval')">
-                            <img src="@/assets/pasien.svg" class="w-5" alt="laporanApproval" />
+                            <img src="@/assets/person.svg" class="w-5" alt="laporanApproval" />
                             <span>Riwayat Approval ATK</span>
                         </li>
                     </router-link>
                     <router-link to="/laporan-pengajuan" class="block">
                         <li :class="menuClass('laporanPengajuan')" @click="setActive('laporanPengajuan')">
-                            <img src="@/assets/pasien.svg" class="w-5" alt="laporanPengajuan" />
+                            <img src="@/assets/person.svg" class="w-5" alt="laporanPengajuan" />
                             <span>Laporan Pengajuan ATK</span>
                         </li>
                     </router-link>

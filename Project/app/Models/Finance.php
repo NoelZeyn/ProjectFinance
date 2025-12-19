@@ -14,6 +14,7 @@ class Finance extends Model
 
     protected $fillable = [
         'id_admin_fk',
+        'type',
         'date',
         'item',
         'category',
@@ -21,6 +22,14 @@ class Finance extends Model
         'amount',
         'price',
         'total',
+        'current_balance'
+    ];
+    protected $casts = [
+        'date'            => 'date',    // Otomatis jadi Carbon (bisa $data->date->format('d-m-Y'))
+        'amount'          => 'integer',
+        'price'           => 'integer',
+        'total'           => 'integer',
+        'current_balance' => 'integer',
     ];
 
     // Relasi ke Admin

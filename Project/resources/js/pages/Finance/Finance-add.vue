@@ -26,28 +26,31 @@
                 </label>
 
                 <!-- TEXTAREA -->
-                <textarea
-                  v-if="field.type === 'textarea'"
-                  v-model="formData[field.key]"
+                <textarea v-if="field.type === 'textarea'" v-model="formData[field.key]"
                   :placeholder="field.placeholder"
-                  class="w-full p-2 border rounded-lg bg-gray-100 text-sm border-gray-300"
-                />
-
+                  class="w-full p-2 border rounded-lg bg-gray-100 text-sm border-gray-300" />
+<select
+  v-else-if="field.type === 'select'"
+  v-model="formData[field.key]"
+  class="w-full p-2 border rounded-lg bg-gray-100 text-sm border-gray-300"
+>
+  <option
+    v-for="opt in field.options"
+    :key="opt.value"
+    :value="opt.value"
+  >
+    {{ opt.label }}
+  </option>
+</select>
                 <!-- INPUT -->
-                <input
-                  v-else
-                  :type="field.type"
-                  v-model="formData[field.key]"
-                  :placeholder="field.placeholder"
-                  :readonly="field.key === 'total'"
-                  :class="[
+                <input v-else :type="field.type" v-model="formData[field.key]" :placeholder="field.placeholder"
+                  :readonly="field.key === 'total'" :class="[
                     'w-full p-2 border rounded-lg text-sm',
                     field.key === 'total'
                       ? 'bg-gray-200 cursor-not-allowed'
                       : 'bg-gray-100',
                     errors[field.key] ? 'border-red-500' : 'border-gray-300'
-                  ]"
-                />
+                  ]" />
               </div>
 
               <span v-if="errors[field.key]" class="text-red-500 text-xs ml-[150px]">
@@ -60,15 +63,14 @@
 
           <div class="flex justify-between mt-6">
             <router-link to="/finance-main">
-              <button class="cursor-pointer w-full sm:w-auto bg-[#074a5d] text-white px-4 py-2 rounded-lg hover:bg-[#063843] transition">
+              <button
+                class="cursor-pointer w-full sm:w-auto bg-[#074a5d] text-white px-4 py-2 rounded-lg hover:bg-[#063843] transition">
                 Kembali
               </button>
             </router-link>
 
-            <button
-              @click="submitTrack"
-              class="cursor-pointer w-full sm:w-auto bg-[#074a5d] text-white px-4 py-2 rounded-lg hover:bg-[#063843] transition"
-            >
+            <button @click="submitTrack"
+              class="cursor-pointer w-full sm:w-auto bg-[#074a5d] text-white px-4 py-2 rounded-lg hover:bg-[#063843] transition">
               Tambahkan Track
             </button>
           </div>
@@ -91,7 +93,7 @@ export default {
 
   data() {
     return {
-      activeMenu: "manajemenAlat",
+      activeMenu: "finance-main",
       formData: {
         item: "",
         date: "",
@@ -100,12 +102,23 @@ export default {
         amount: "",
         price: "",
         total: 0,
+        type: "",
         id_admin_fk: null,
       },
       errors: {},
       showSuccessAlert: false,
       successMessage: "",
       fields: [
+        {
+          key: "type",
+          label: "Tipe Transaksi",
+          type: "select",
+          options: [
+            { label: "Expense (Pengeluaran)", value: "expense" },
+            { label: "Income (Pemasukan)", value: "income" },
+          ],
+          placeholder: "Pilih Tipe Transaksi",
+        },
         { key: "item", label: "Nama Barang", type: "text", placeholder: "Nama Barang" },
         { key: "date", label: "Tanggal", type: "date", placeholder: "Tanggal" },
         { key: "category", label: "Kategori", type: "text", placeholder: "Kategori" },

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex min-h-screen flex-col md:flex-row">
+    <div class="flex min-h-screen flex-col md:flex-row px-4 md:px-0">
         <!-- Left Side (Hidden on Mobile) -->
         <div
             class="hidden md:flex w-full md:w-2/5 text-white rounded-r-lg overflow-hidden bg-cover bg-center opacity-80"
@@ -22,11 +22,11 @@
             class="w-full md:w-3/5 flex flex-col items-center pt-5 overflow-hidden"
         >
             <div class="flex items-center gap-3 self-start ml-12 mb-10">
-                <img
+                <!-- <img
                     :src="logoImage"
                     alt="Logo Image"
                     class="w-[75px] rounded-t-lg object-cover"
-                />
+                /> -->
                 <span
                     class="logo-text text-[20px] font-bold text-[#08607a] font-['Protest_Strike']"
                     >Sistem Keuangan</span
@@ -37,7 +37,7 @@
                 class="flex flex-col items-center text-center mb-5 w-full max-w-md"
             >
                 <h2 class="text-3xl font-semibold mb-2 w-full">
-                    Masuk Sistem Keuangan
+                    Masuk Sistem
                 </h2>
                 <p class="text-sm text-gray-500 mb-6">
                     Monitor, Manage, and Care Better

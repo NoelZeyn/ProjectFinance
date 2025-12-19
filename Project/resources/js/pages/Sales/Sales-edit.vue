@@ -76,7 +76,7 @@ export default {
 
   data() {
     return {
-      activeMenu: "sales",
+      activeMenu: "sales-main",
       formData: {
         invoice_number: "",
         date: "",

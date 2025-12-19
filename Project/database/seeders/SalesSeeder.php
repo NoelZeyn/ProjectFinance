@@ -17,7 +17,7 @@ class SalesSeeder extends Seeder
         //
             DB::table('sales')->truncate();
         // Add your sales data seeding logic here
-        for ($i = 1; $i <= 1000; $i++) {
+        for ($i = 1; $i <= 10000; $i++) {
             Sales::create([
                 'id_admin_fk' => 1,
                 'invoice_number' => 'INV-' . now()->format('Ymd') . '-' . str_pad($i, 5, '0', STR_PAD_LEFT),

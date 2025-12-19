@@ -63,7 +63,7 @@ export default {
               case 'user':
               case 'user_review':
               case 'anggaran':
-                this.$router.push('/dashboard');
+                this.$router.push('/finance-main');
                 break;
               default:
                 this.$router.push('/dashboard');

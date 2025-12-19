@@ -63,7 +63,7 @@ import Section from "../../components/Section.vue";
 import FieldText from "../../components/FieldText.vue";
 
 export default {
-  name: "SalesInfo",
+  name: "sales-main",
   components: {
     Sidebar,
     HeaderBar,

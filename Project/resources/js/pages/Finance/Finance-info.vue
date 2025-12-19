@@ -70,7 +70,7 @@ export default {
 
   data() {
     return {
-      activeMenu: "manajemenAlat",
+      activeMenu: "finance-main",
       formData: {
         item: "",
         date: "",
@@ -97,7 +97,7 @@ export default {
   },
 
   methods: {
-    async fetchTracks() {
+async fetchTracks() {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
@@ -110,11 +110,19 @@ export default {
           }
         );
 
+        // PERBAIKAN DISINI: Format tanggal sebelum dimasukkan ke formData
         if (response.data?.data) {
-          this.formData = response.data.data;
+          const fetchedData = response.data.data;
+          
+          // Cek jika ada field 'date' dan formatnya panjang, kita potong ambil YYYY-MM-DD saja
+          if (fetchedData.date && fetchedData.date.includes("T")) {
+            fetchedData.date = fetchedData.date.split("T")[0];
+          }
+
+          this.formData = { ...this.formData, ...fetchedData };
         }
-      } catch (error) {
-        console.error("Gagal mengambil data finance:", error);
+      } catch (err) {
+        console.error("Gagal mengambil data finance:", err);
       }
     },
   },

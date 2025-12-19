@@ -14,6 +14,27 @@
         <div class="h-[1px] w-full bg-gray-300 my-4"></div>
 
         <div class="flex flex-col gap-6">
+
+          <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded shadow-sm text-sm">
+            <div class="flex items-start">
+              <div class="py-1">
+                <svg class="fill-current h-6 w-6 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20">
+                  <path
+                    d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
+                </svg>
+              </div>
+              <div>
+                <p class="font-bold">Informasi Penting</p>
+                <p class="text-xs sm:text-sm mt-1 text-[#074a5d] text-blue-700">
+                  Untuk menjaga keakuratan saldo,
+                  <b>Tipe Transaksi</b> dan <b>Tanggal</b> tidak dapat diubah pada menu ini.
+                  Jika Anda perlu mengubahnya, silakan
+                  <b class="text-red-600">hapus data ini</b> dan buat transaksi baru.
+                </p>
+              </div>
+            </div>
+          </div>
           <h4 class="text-[15px] font-medium text-black text-center">
             Form Update Track Finance
           </h4>
@@ -25,16 +46,24 @@
                   {{ field.label }}
                 </label>
 
-                <!-- TEXTAREA -->
                 <textarea v-if="field.type === 'textarea'" v-model="formData[field.key]"
                   :placeholder="field.placeholder" class="w-full p-2 border rounded-lg bg-gray-100 text-sm" />
 
-                <!-- INPUT -->
+                <select v-else-if="field.type === 'select'" v-model="formData[field.key]"
+                  :disabled="field.key === 'type'" :class="[
+                    'w-full p-2 border rounded-lg text-sm border-gray-300',
+                    field.key === 'type' ? 'bg-gray-200 cursor-not-allowed text-gray-500' : 'bg-gray-100'
+                  ]">
+                  <option v-for="opt in field.options" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+
                 <input v-else :type="field.type" v-model="formData[field.key]" :placeholder="field.placeholder"
-                  :readonly="field.key === 'total'" :class="[
+                  :disabled="field.key === 'date'" :readonly="field.key === 'total'" :class="[
                     'w-full p-2 border rounded-lg text-sm',
-                    field.key === 'total'
-                      ? 'bg-gray-200 cursor-not-allowed'
+                    (field.key === 'total' || field.key === 'date')
+                      ? 'bg-gray-200 cursor-not-allowed text-gray-500' // Style untuk disable/readonly
                       : 'bg-gray-100',
                     errors[field.key] ? 'border-red-500' : 'border-gray-300'
                   ]" />
@@ -67,7 +96,6 @@
   </div>
 </template>
 
-
 <script>
 import Sidebar from "@/components/Sidebar.vue";
 import HeaderBar from "@/components/HeaderBar.vue";
@@ -80,7 +108,7 @@ export default {
 
   data() {
     return {
-      activeMenu: "manajemenAlat",
+      activeMenu: "finance-main",
       formData: {
         item: "",
         date: "",
@@ -89,12 +117,23 @@ export default {
         amount: "",
         price: "",
         total: 0,
+        type: "",
         id_admin_fk: null,
       },
       errors: {},
       showSuccessAlert: false,
       successMessage: "",
       fields: [
+        {
+          key: "type",
+          label: "Tipe Transaksi",
+          type: "select",
+          options: [
+            { label: "Expense (Pengeluaran)", value: "expense" },
+            { label: "Income (Pemasukan)", value: "income" },
+          ],
+          placeholder: "Pilih Tipe Transaksi",
+        },
         { key: "item", label: "Nama Barang", type: "text", placeholder: "Nama Barang" },
         { key: "date", label: "Tanggal", type: "date", placeholder: "Tanggal" },
         { key: "category", label: "Kategori", type: "text", placeholder: "Kategori" },
@@ -119,13 +158,13 @@ export default {
       this.formData.total = val;
     },
   },
-    mounted() {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (user) {
-        this.formData.id_admin_fk = user.id;
-      }
-      this.fetchTracks();
-    },
+  mounted() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      this.formData.id_admin_fk = user.id;
+    }
+    this.fetchTracks();
+  },
 
   methods: {
     validateForm() {
@@ -136,24 +175,34 @@ export default {
       return Object.keys(this.errors).length === 0;
     },
 
-async fetchTracks() {
-  try {
-    const token = localStorage.getItem("token");
-    const response = await axios.get(
-      `http://localhost:8000/api/finance-info/${this.$route.params.id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      }
-    );
+    async fetchTracks() {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `http://localhost:8000/api/finance-info/${this.$route.params.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          }
+        );
 
-    if (response.data?.data) this.formData = { ...this.formData, ...response.data.data };
-  } catch (err) {
-    console.error("Gagal mengambil data finance:", err);
-  }
-},
+        // PERBAIKAN DISINI: Format tanggal sebelum dimasukkan ke formData
+        if (response.data?.data) {
+          const fetchedData = response.data.data;
+
+          // Cek jika ada field 'date' dan formatnya panjang, kita potong ambil YYYY-MM-DD saja
+          if (fetchedData.date && fetchedData.date.includes("T")) {
+            fetchedData.date = fetchedData.date.split("T")[0];
+          }
+
+          this.formData = { ...this.formData, ...fetchedData };
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data finance:", err);
+      }
+    },
     async submitTrack() {
       if (!this.validateForm()) return;
 

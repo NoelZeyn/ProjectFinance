@@ -6,23 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('finance', function (Blueprint $table) {
             $table->id('id_finance');
             $table->unsignedBigInteger('id_admin_fk');
+            $table->enum('type', ['income', 'expense']);
             $table->date('date');
+
+            // Detail Item
             $table->string('item');
             $table->string('category');
-            $table->string('description');
-            $table->integer('amount');
-            $table->integer('price');
-            $table->integer('total');
-            $table->timestamps();
+            $table->string('description')->nullable();
 
+            // Perhitungan Uang
+            $table->bigInteger('amount'); // Qty (Jumlah Barang)
+            $table->bigInteger('price');  // Harga Satuan
+            $table->bigInteger('total');  // Total (Qty * Price) -> Uang yang keluar/masuk
+
+            // PENTING: Saldo saat transaksi ini terjadi
+            $table->bigInteger('current_balance')->default(0);
+
+            $table->timestamps();
             $table->foreign('id_admin_fk')->references('id')->on('admin');
         });
     }

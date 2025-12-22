@@ -142,6 +142,15 @@
                 </div>
 
                 <div class="flex flex-col gap-1">
+                    <p class="px-3 text-xs font-bold uppercase tracking-wider text-[#b0b385] mb-2">Penjualan</p>
+                    <router-link to="/sales-main" class="block">
+                        <div :class="menuClass('sales-main')">
+                            <img src="@/assets/profil.svg" class="w-5" alt="Sales" />
+                            <span>Sales</span>
+                        </div>
+                    </router-link>
+                </div>
+                <div class="flex flex-col gap-1">
                     <p class="px-3 text-xs font-bold uppercase tracking-wider text-[#b0b385] mb-2">Keuangan</p>
                     <router-link to="/finance-main" class="block">
                         <div :class="menuClass('finance-main')">
@@ -149,10 +158,16 @@
                             <span>Track Finance</span>
                         </div>
                     </router-link>
-                    <router-link to="/sales-main" class="block">
-                        <div :class="menuClass('sales-main')">
-                            <img src="@/assets/profil.svg" class="w-5" alt="Sales" />
-                            <span>Sales</span>
+                    <router-link to="/finance-stock" class="block">
+                        <div :class="menuClass('finance-stock')">
+                            <img src="@/assets/profil.svg" class="w-5" alt="Finance" />
+                            <span>Stock Simulation</span>
+                        </div>
+                    </router-link>
+                    <router-link to="/finance-invest" class="block">
+                        <div :class="menuClass('finance-invest')">
+                            <img src="@/assets/profil.svg" class="w-5" alt="Finance" />
+                            <span>Invest Simulation</span>
                         </div>
                     </router-link>
                 </div>

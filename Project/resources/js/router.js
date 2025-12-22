@@ -41,6 +41,8 @@ import SalesMain from "./pages/Sales/Sales-main.vue";
 import SalesAdd from "./pages/Sales/Sales-add.vue";
 import SalesEdit from "./pages/Sales/Sales-edit.vue";
 import SalesInfo from "./pages/Sales/Sales-info.vue";
+import FinanceInvest from "./pages/Finance/Finance-Invest.vue";
+import FinanceStock from "./pages/Finance/Finance-Stock.vue";
 
 
 
@@ -116,6 +118,8 @@ const routes = [
     { path: "/finance-add", component: FinanceAdd, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
     { path: "/finance-edit/:id", component: FinanceEdit, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
     { path: "/finance-info/:id", component: FinanceInfo, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
+    { path: "/finance-invest", component: FinanceInvest, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
+    { path: "/finance-stock", component: FinanceStock, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Finance" } },
 
     { path: "/sales-main", component: SalesMain, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Sales" } },
     { path: "/sales-add", component: SalesAdd, meta: { requiresAuth: true, disallowedRoles: ["user"], title: "Track Sales" } },

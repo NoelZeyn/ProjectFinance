@@ -143,21 +143,26 @@
           </div>
 
           <!-- Pagination -->
-          <div class="flex justify-between items-center px-4 py-3 border-t border-gray-300 text-sm text-[#333436]">
-            <button @click="prevPage" :disabled="currentPage === 1"
-              class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer">
-              Prev
-            </button>
-            <span>
-              Halaman {{ currentPage }} dari
-              {{ tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin' ? totalPages : totalPagesUser }}
-            </span>
-            <button @click="nextPage"
-              :disabled="currentPage === (tingkatanOtoritas === 'admin' || tingkatanOtoritas === 'superadmin' ? totalPages : totalPagesUser)"
-              class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer">
-              Next
-            </button>
-          </div>
+<div class="flex justify-between items-center px-4 py-3 border-t border-gray-300 text-sm text-[#333436]">
+  <button 
+    @click="prevPage" 
+    :disabled="pagination.current_page === 1"
+    class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer">
+    Prev
+  </button>
+  
+  <span>
+    Halaman {{ pagination.current_page }} dari {{ pagination.last_page }} 
+    (Total: {{ pagination.total }} Data)
+  </span>
+  
+  <button 
+    @click="nextPage" 
+    :disabled="pagination.current_page === pagination.last_page"
+    class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer">
+    Next
+  </button>
+</div>
         </div>
       </div>
     </div>
@@ -181,6 +186,7 @@ import updateIcon from "@/assets/Edit.svg";
 import deleteIcon from "@/assets/Delete.svg";
 import axios from "axios";
 import Chart from 'chart.js/auto'; // Import Chart.js
+import { debounce } from "lodash";
 export default {
   name: "TrackingSales",
   components: { Sidebar, HeaderBar, ModalConfirm, SuccessAlert },
@@ -195,6 +201,12 @@ export default {
       tingkatanOtoritas: "",
       salesList: [],
       userSalesList: [],
+pagination: {
+        current_page: 1,
+        last_page: 1,
+        total: 0
+      },
+
       informasiIcon,
       updateIcon,
       deleteIcon,
@@ -209,51 +221,13 @@ export default {
 
   computed: {
     // 1. Filter dan Sort Data Mentah
-    filteredAndSortedSales() {
-      // Filter logic (sama seperti sebelumnya)
-      const filtered = this.salesList.filter(s => {
-        const productMatch = !this.searchProduct || s.barang_sales?.product_name?.toLowerCase().includes(this.searchProduct.toLowerCase());
-        const customerMatch = !this.searchCustomer || s.customer_name?.toLowerCase().includes(this.searchCustomer.toLowerCase());
-        const dateMatch = !this.searchDate || s.date === this.searchDate;
-        return productMatch && customerMatch && dateMatch;
-      });
-
-      // Sorting Multi-level: Date (Desc) -> Item (Asc) -> Customer (Asc)
-      return filtered.sort((a, b) => {
-        // Sort by Date Desc
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        if (dateA > dateB) return -1;
-        if (dateA < dateB) return 1;
-
-        // Sort by Item Name Asc
-        const itemA = (a.barang_sales?.product_name || "").toLowerCase();
-        const itemB = (b.barang_sales?.product_name || "").toLowerCase();
-        if (itemA < itemB) return -1;
-        if (itemA > itemB) return 1;
-
-        // Sort by Customer Name Asc
-        const custA = (a.customer_name || "").toLowerCase();
-        const custB = (b.customer_name || "").toLowerCase();
-        if (custA < custB) return -1;
-        if (custA > custB) return 1;
-
-        return 0;
-      });
-    },
-
-    // 2. Ambil data untuk halaman saat ini (Paginasi)
-    paginatedSales() {
-      const start = (this.currentPage - 1) * this.salesPerPage;
-      return this.filteredAndSortedSales.slice(start, start + this.salesPerPage);
-    },
 
     // 3. Struktur Data untuk Tampilan (Grouping Logic)
-    structuredSalesData() {
+structuredSalesData() {
       const groups = {};
-
-      // Kelompokkan data halaman ini
-      this.paginatedSales.forEach(sale => {
+      
+      // Gunakan salesList langsung
+      this.salesList.forEach(sale => {
         const dateKey = sale.date;
         const itemKey = sale.barang_sales?.product_name || "Tanpa Nama Barang";
 
@@ -263,29 +237,24 @@ export default {
         groups[dateKey][itemKey].push(sale);
       });
 
-      // Transform object ke Array untuk loop di Vue Template
-      // Hasil: [{ date: '...', totalRows: 5, items: [{ name: '...', count: 2, sales: [] }] }]
       return Object.keys(groups).map(date => {
         const itemsObj = groups[date];
-
-        // Map Items dalam Date tersebut
         const itemsArray = Object.keys(itemsObj).map(itemName => {
           return {
             name: itemName,
             sales: itemsObj[itemName],
-            count: itemsObj[itemName].length // Rowspan untuk Item
+            count: itemsObj[itemName].length
           };
         });
-
-        // Hitung total baris untuk Rowspan Date
         const totalDateRows = itemsArray.reduce((sum, item) => sum + item.count, 0);
 
         return {
           date: date,
           items: itemsArray,
-          totalRows: totalDateRows // Rowspan untuk Date
+          totalRows: totalDateRows
         };
-      }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Pastikan urutan tanggal tetap Desc
+      // Sort tanggal desc hanya untuk tampilan halaman ini
+      }).sort((a, b) => new Date(b.date) - new Date(a.date)); 
     },
 
     totalPages() {
@@ -296,11 +265,16 @@ export default {
       return Math.ceil(this.userSalesList.length / this.salesPerPage);
     }
   },
-
+watch: {
+    // Panggil fetchSales setiap input berubah, tapi tunggu 500ms (debounce)
+    searchProduct: debounce(function() { this.fetchSales(1) }, 500),
+    searchCustomer: debounce(function() { this.fetchSales(1) }, 500),
+    searchDate() { this.fetchSales(1) }, // Date gak perlu debounce
+  },
   created() {
     this.getUserInfo();
-    this.fetchSales();
-    this.fetchUserSales();
+    this.fetchSales(1);
+    // this.fetchUserSales();
   },
 
   methods: {
@@ -315,14 +289,9 @@ export default {
       return this.getPrice(sales) * Number(sales.quantity || 0);
     },
 
-    formatDate(date) {
-      return new Date(date).toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
-      });
+formatDate(date) {
+      return new Date(date).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
     },
-
     formatRupiah(val) {
       if (!val) return "-";
       return "Rp. " + val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -587,31 +556,42 @@ export default {
       this.tingkatanOtoritas = res.data.tingkatan_otoritas;
     },
 
-    async fetchSales() {
-      this.isLoading = true; // Mulai Loading
+ async fetchSales(page = 1) {
+      this.isLoading = true;
       try {
         const token = localStorage.getItem("token");
+        
+        // Kirim Parameter Page & Search ke Backend
         const res = await axios.get("http://localhost:8000/api/sales", {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            page: page,
+            per_page: this.salesPerPage,
+            search_product: this.searchProduct,
+            search_customer: this.searchCustomer,
+            search_date: this.searchDate
+          }
         });
-        this.salesList = res.data.data;
+
+        // Backend Laravel return structure: { data: { data: [...], current_page: 1, ... } }
+        const responseData = res.data.data;
+        
+        this.salesList = responseData.data; // Cuma array 10 biji
+        
+        // Simpan info halaman
+        this.pagination = {
+            current_page: responseData.current_page,
+            last_page: responseData.last_page,
+            total: responseData.total
+        };
+
       } catch (error) {
         console.error("Gagal mengambil data:", error);
       } finally {
-        setTimeout(() => {
-          this.isLoading = false;
-        }, 500);
+        this.isLoading = false;
       }
     },
 
-    async fetchUserSales() {
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
-      const res = await axios.get(`http://localhost:8000/api/sales/${user.id_penempatan_fk}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      this.userSalesList = res.data.data?.[0]?.barang || [];
-    },
 
     navigateTo(action, sales) {
       localStorage.setItem(`dataSales${action}`, JSON.stringify(sales));
@@ -642,12 +622,16 @@ export default {
       this.cancelDelete();
     },
 
-    nextPage() {
-      if (this.currentPage < this.totalPages) this.currentPage++;
+nextPage() {
+      if (this.pagination.current_page < this.pagination.last_page) {
+        this.fetchSales(this.pagination.current_page + 1);
+      }
     },
 
-    prevPage() {
-      if (this.currentPage > 1) this.currentPage--;
+prevPage() {
+      if (this.pagination.current_page > 1) {
+        this.fetchSales(this.pagination.current_page - 1);
+      }
     },
 
     onInputSearch() {

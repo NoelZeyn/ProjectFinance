@@ -29,7 +29,7 @@
               Status Penjualan <span class="text-red-500">*</span>
             </label>
 
-            <select v-model="formData.payment_method" required
+            <select v-model="formData.sales_status" required
               class="p-2 border rounded-lg text-sm focus:ring-1 focus:ring-[#074a5d]">
               <option value="">-- Pilih Status Penjualan --</option>
               <option value="pending">Pending</option>
@@ -58,19 +58,19 @@
               Barang Sales <span class="text-red-500">*</span>
             </label>
 
-            <select v-model="selectedBarangId" @change="onBarangChange"
-              class="p-2 border rounded-lg text-sm focus:ring-1 focus:ring-[#074a5d]">
+            <select v-model="selectedBarangId" @change="onBarangChange" class="p-2 border rounded-lg text-sm">
               <option value="">-- Pilih Barang --</option>
-              <option v-for="barang in barangSales" :key="barang.id" :value="barang.id">
+              <option v-for="barang in barangSales" :key="barang.id_barang_sales" :value="barang.id_barang_sales">
                 {{ barang.product_name }}
               </option>
             </select>
+
           </div>
 
-          <FieldText label="Kode Produk" :modelValue="formData.product_code" mode="view" />
-          <FieldText label="Kategori" :modelValue="formData.category" mode="view" />
+          <FieldText label="Kode Produk" :modelValue="displayBarang.product_code" mode="view" />
+          <FieldText label="Kategori" :modelValue="displayBarang.category" mode="view" />
           <FieldText label="Quantity" type="number" mode="edit" v-model="formData.quantity" required />
-          <FieldText label="Harga (Rp)" :modelValue="formatRupiah(formData.price)" mode="view" />
+          <FieldText label="Harga (Rp)" :modelValue="formatRupiah(displayBarang.price)" mode="view" />
           <FieldText label="Total (Rp)" :modelValue="formatRupiah(calculatedTotal)" mode="view" />
         </Section>
 
@@ -130,14 +130,19 @@ export default {
         customer_name: "",
         customer_contact: "",
         notes: "",
-        product_code: "",
-        category: "",
-        quantity: 0,
-        price: 0,
+
+        id_barang_sales: null,
+        quantity: 1,
+
         courier: "",
         shipping_cost: 0,
         tracking_number: "",
         shipping_address: ""
+      },
+      displayBarang: {
+        product_code: "",
+        category: "",
+        price: 0
       }
     };
   },
@@ -149,9 +154,10 @@ export default {
   computed: {
     calculatedTotal() {
       return Number(this.formData.quantity || 0) *
-        Number(this.formData.price || 0);
+        Number(this.displayBarang.price || 0);
     }
-  },
+  }
+  ,
 
   methods: {
     async fetchBarangSales() {
@@ -162,31 +168,33 @@ export default {
         });
         this.barangSales = res.data.data;
       } catch (err) {
-        console.error("Gagal ambil barang sales:", err);
+        console.error(err);
       }
     },
-
     onBarangChange() {
       const barang = this.barangSales.find(
-        b => b.id === this.selectedBarangId
+        b => b.id_barang_sales === this.selectedBarangId
       );
 
       if (!barang) return;
 
-      this.formData.product_code = barang.product_code;
-      this.formData.category = barang.category;
-      this.formData.price = barang.price;
-    },
+      // FK untuk backend
+      this.formData.id_barang_sales = barang.id_barang_sales;
 
+      // DISPLAY ONLY
+      this.displayBarang.product_code = barang.product_code;
+      this.displayBarang.category = barang.category;
+      this.displayBarang.price = barang.price;
+    },
     async submitData() {
       try {
         const token = localStorage.getItem("token");
 
         await axios.post(
-          "http://localhost:8000/api/sales-add",
+          "http://localhost:8000/api/sales",
           {
             ...this.formData,
-            total: this.calculatedTotal
+            total_payment: this.calculatedTotal // ✅ SESUAI MIGRATION
           },
           {
             headers: { Authorization: `Bearer ${token}` }
@@ -194,9 +202,11 @@ export default {
         );
 
         alert("Data sales berhasil disimpan.");
+        this.$router.push("/sales-main");
+
       } catch (err) {
-        console.error(err);
-        alert("Gagal menyimpan data sales.");
+        console.error(err.response?.data || err);
+        alert(err.response?.data?.message || "Gagal menyimpan data sales.");
       }
     },
 
